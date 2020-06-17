@@ -1,4 +1,11 @@
-import numpy as np
+"""
+Glove model, based on gluon files / URL, loaded into one big numpy array
+and two dicts for term / idx mapping
+"""
+from download import download
+glove_model_url='https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/embeddings/glove/glove.6B.300d.npz'
+glove_model_path='data/glove.6B.300d.npz'
+download([glove_model_url], dest='data/')
 
 def token_to_idx(idx_to_token):
     lookup={}
@@ -8,46 +15,19 @@ def token_to_idx(idx_to_token):
 
 from functools import lru_cache
 @lru_cache(maxsize=1)
-def glove(path):
-    with np.load(path) as f:
-        return f['idx_to_vec'], f['idx_to_token'], token_to_idx(f['idx_to_token'])
+def glove():
+    """ Return 3-tuple of
+        - row x 300 matrix,
+        - (row) idx->token mapping
+        - token -> (row) idx mapping
 
-
-def nearest_neighbors(token, n=100):
-    glove_matrix, idx_to_token, token_to_idx = glove('glove.6B.50d.npz')
-    token_idx = token_to_idx[token]
-    token_vect = glove_matrix[token_idx]
-
-    dotted = np.dot(glove_matrix, token_vect)
-    normed = np.linalg.norm(glove_matrix, axis=1)
-    nn = np.divide(dotted,normed)
-    top_n = np.argpartition(-nn, n)[:n]
-    return top_n
-
-def print_nearest_neighbors(token):
-    nn = nearest_neighbors(token, n=5)
-    _, idx_to_token, _ = glove('glove.6B.50d.npz')
-    for idx in nn:
-        print(idx_to_token[idx])
-
-
-from contextlib import contextmanager
-@contextmanager
-def perf_log():
-    from time import perf_counter
-    start = perf_counter()
-    yield start
-    stop = perf_counter()
-    print("Took %s" % (stop-start))
-
-
-
-if __name__ == "__main__":
-    from sys import argv
-    tokens=argv[1:]
-    for token in tokens:
-        print("==========================")
-        print("%s nn:" % token)
-        with perf_log():
-            print_nearest_neighbors(token)
+        These are memoized, so call as much as you want you greedy bastard.
+        Naturally all should be treated as read-only
+    """
+    import numpy as np
+    """ Read from Gluons embedding pickle files"""
+    with np.load(glove_model_path) as f:
+        matrix = f['idx_to_vec']
+        matrix.setflags(write=0)
+        return matrix, f['idx_to_token'], token_to_idx(f['idx_to_token'])
 
