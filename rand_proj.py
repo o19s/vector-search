@@ -1,12 +1,18 @@
 import numpy as np
-from glove import glove
 
 class RandomProjections:
 
-    def __init__(self, matrix, num_vects=1000):
+    """ A Naive random projections """
+
+    def __init__(self, matrix, num_vects=2000):
         cols=matrix.shape[1]
+        # Generate random vects, balance around 0
         self.projs=np.random.rand( cols, num_vects  )
-        #self.projs -= 0.5
+        self.projs -= 0.5
+        normed = np.linalg.norm(self.projs, axis=1)
+        self.projs = np.divide(self.projs.transpose(), normed).transpose()
+
+        # Create a hash for each row
         self.hashed=np.matmul(matrix, self.projs)
         self.hashed[self.hashed >= 0] = 1
         self.hashed[self.hashed <  0] = -1
@@ -24,24 +30,14 @@ class RandomProjections:
         return top_n, nn[top_n]
 
 
-def print_glove_nearest_neighbors(token, rand_proj):
-    glove_matrix, idx_to_token, token_to_idx = glove()
-    token_idx = token_to_idx[token]
-    nn, scores = rand_proj(token_idx, glove_matrix, n=30)
-    _, idx_to_token, _ = glove()
-    for idx, score in zip(nn, scores):
-        print(score, idx_to_token[idx])
+def rand_proj_from_glove():
+    from glove import glove
+    glove_matrix, _, _ = glove()
+    return RandomProjections(glove_matrix)
+
+
 
 if __name__ == "__main__":
-    from sys import argv
-    from perf import perf_timed
-    tokens=argv[1:]
-    glove_matrix, idx_to_token, token_to_idx = glove()
-    rand_proj=RandomProjections(glove_matrix)
-    for token in tokens:
-        print("==========================")
-        print("%s nn:" % token)
-        with perf_timed():
-            print_glove_nearest_neighbors(token, rand_proj)
-
-
+    from algo_test import eval_algo
+    algo = rand_proj_from_glove()
+    eval_algo(algo)

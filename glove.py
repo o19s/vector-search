@@ -3,8 +3,8 @@ Glove model, based on gluon files / URL, loaded into one big numpy array
 and two dicts for term / idx mapping
 """
 from download import download
-glove_model_url='https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/embeddings/glove/glove.6B.50d.npz'
-glove_model_path='data/glove.6B.50d.npz'
+glove_model_url='https://apache-mxnet.s3-accelerate.dualstack.amazonaws.com/gluon/embeddings/glove/glove.6B.300d.npz'
+glove_model_path='data/glove.6B.300d.npz'
 download([glove_model_url], dest='data/')
 
 def token_to_idx(idx_to_token):
