@@ -1,4 +1,5 @@
-(Demo project, not maintained.)
+|------------------------------------------------------|
+| **(Experimental project, used only for reference)**  |
 
 Just some code toying with nearest neighbors algorithms in Python. Numpy is the major dependency (note numpy is much faster if you [install openblas](https://stackoverflow.com/questions/11443302/compiling-numpy-with-openblas-integration)). 
 
