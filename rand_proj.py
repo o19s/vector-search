@@ -4,10 +4,10 @@ class RandomProjections:
 
     """ A Naive random projections """
 
-    def __init__(self, matrix, num_vects=2000):
+    def __init__(self, matrix, num_projections=50):
         cols=matrix.shape[1]
-        # Generate random vects, balance around 0
-        self.projs=np.random.rand( cols, num_vects  )
+        # Generate random vects, center around 0
+        self.projs=np.random.rand( cols, num_projections  )
         self.projs -= 0.5
         normed = np.linalg.norm(self.projs, axis=1)
         self.projs = np.divide(self.projs.transpose(), normed).transpose()
@@ -30,14 +30,15 @@ class RandomProjections:
         return top_n, nn[top_n]
 
 
-def rand_proj_from_glove():
+def rand_proj_from_glove(num_projections):
     from glove import glove
     glove_matrix, _, _ = glove()
-    return RandomProjections(glove_matrix)
+    return RandomProjections(glove_matrix, num_projections=num_projections)
 
 
 
 if __name__ == "__main__":
     from algo_test import eval_algo
-    algo = rand_proj_from_glove()
+    from sys import argv
+    algo = rand_proj_from_glove(num_projections=int(argv[1]))
     eval_algo(algo)
