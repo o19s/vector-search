@@ -7,12 +7,15 @@ def exact_nearest_neighbors(row, matrix, n=100):
     """ nth nearest neighbors as array
         with indices of nearest neighbors"""
     token_vect = matrix[row]
+    if exact_nearest_neighbors.normed is None:
+        exact_nearest_neighbors.normed = np.linalg.norm(matrix, axis=1)
 
     dotted = np.dot(matrix, token_vect)
-    normed = np.linalg.norm(matrix, axis=1)
-    nn = np.divide(dotted,normed)
+    nn = np.divide(dotted, exact_nearest_neighbors.normed)
     top_n = np.argpartition(-nn, n)[:n]
     return top_n, nn[top_n]
+
+exact_nearest_neighbors.normed=None
 
 def print_glove_nearest_neighbors(token):
     glove_matrix, idx_to_token, token_to_idx = glove()
